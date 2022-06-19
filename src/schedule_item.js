@@ -91,19 +91,14 @@ function monthlyRecurrence(distributionDate, targetOccurrence, targetDay) {
 // Is today a day on which a distribution event should be created for the
 // item (a schedule record) being processed?
 //
-// Return true if the schedule has a distribution event scheduled
-// `registration_period` days from today, where `registration_period` is a
-// positive integer.
-function hasUpcomingDistribution(input, today) {
-  for (let registrationDate of scheduledRegistrationDates(input, today)) {
-    if (registrationDate === today) { return true; }
-  }
-  return false;
-}
-
+// Return the provided schedule item if the schedule has a distribution event
+// scheduled `registration_period` days from today, where `registration_period`
+// is a positive integer.
 function run(item) {
-  if (hasUpcomingDistribution(item)) {
-    return {}
+  const today = toString(DateTime.now().setZone("America/New_York"));
+
+  for (let registrationDate of scheduledRegistrationDates(input, today)) {
+    if (registrationDate === today) { return item; }
   }
 }
 
