@@ -22,7 +22,7 @@ function scheduledRegistrationDates({ fields }, today = null) {
 
     if (repeat !== "never") {
       currOccurrence += 1;
-      currDistributionDate = currDistributionDate.plus(recurrenceInterval(fields))
+      currDistributionDate = nextDistributionDate(currDistributionDate, fields);
       currRegistrationDate = currDistributionDate.minus({ days: registration_period });
     }
   } while (shouldRepeat(currOccurrence, currDistributionDate, currRegistrationDate, today, fields));
@@ -32,7 +32,6 @@ function scheduledRegistrationDates({ fields }, today = null) {
 
 function shouldRepeat(occurrences, distributionDate, registrationDate, today, fields) {
   const { repeat, repeat_end, repeat_end_after, repeat_end_on_date } = fields;
-
   if (repeat === "never") { return false; }
 
   switch (repeat_end) {
@@ -45,27 +44,24 @@ function shouldRepeat(occurrences, distributionDate, registrationDate, today, fi
   }
 }
 
-function recurrenceInterval({ repeat, repeat_monthly }) {
+function nextDistributionDate(distributionDate, { repeat, repeat_monthly }) {
   switch (repeat) {
     case 'daily':
-      return { days: 1 };
+      return distributionDate.plus({ days: 1 });
     case 'weekly':
-      return { days: 7 };
+      return distributionDate.plus({ days: 7 });
     case 'biweekly':
-      return { days: 14 };
+      return distributionDate.plus({ days: 14 });
     case 'monthly':
-      return monthlyRecurrence(repeat_monthly);
+      if (!repeat_monthly) { return distributionDate.plus({ months: 1 }); }
+      return monthlyRecurrence(distributionDate, ...repeat_monthly.split(' '));
   }
 }
 
-// TODO
 // Handle 'second monday', 'last day', etc
-function monthlyRecurrence(repeat_monthly) {
-  if (!repeat_monthly) { return { months: 1 }; }
-
+function monthlyRecurrence(distributionDate, interval, day) {
   const weekdays = { sunday: 0, monday: 1, tuesday: 2, wednesday: 3, thursday: 4, friday: 5, saturday: 6 };
   const occurrence = { first: 1, second: 2, third: 3, fourth: 4, last: -1 };
-  const [interval, day] = repeat_monthly.split(' ');
 
   return [occurrence[interval], weekdays[day]];
 }

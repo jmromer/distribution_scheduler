@@ -70,6 +70,9 @@ it("repeating monthly: returns a list of dates on which registration opens", () 
 });
 
 // it("repeating monthly (nth weekday): returns a list of dates on which registration opens", () => {
+//   let item = buildSchedule({ date: '2022-06-08', registration_period: 7, repeat: "monthly", repeat_end: "after", repeat_end_after: 3, monthly_repeat: "third wednesday" });
+//   let registrationDates = node.scheduledRegistrationDates(item);
+//   expect(registrationDates).toEqual(["2022-06-01", "2022-07-01", "2022-08-01"]);
 // });
 
 // it("repeating monthly (nth day): returns a list of dates on which registration opens", () => {
