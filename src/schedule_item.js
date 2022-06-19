@@ -111,13 +111,24 @@ class Schedule {
 // Return the provided schedule item if the schedule has a distribution event
 // scheduled `registration_period` days from today, where `registration_period`
 // is a positive integer.
-function run(item) {
+function run({ fields }) {
   const today = toString(DateTime.now().setZone("America/New_York"));
-  const schedule = new Schedule(item.fields, today);
+  const schedule = new Schedule(fields, today);
 
-  for (let registrationDate of schedule.registrationDates()) {
-    if (registrationDate === today) { return item; }
+  for (let distributionEvent of schedule.distributionEvents()) {
+    if (distributionEvent.registration === today) {
+      const { program_record_id, start_time, end_time, program_id, org_name, program_name, registration_period } = fields
+      return {
+        program_record_id,
+        date: distributionEvent.distribution,
+        registration_period,
+        start_time,
+        end_time,
+      };
+    }
   }
+
+  return {}
 }
 
 module.exports = { Schedule }
