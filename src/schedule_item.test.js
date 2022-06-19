@@ -1,72 +1,72 @@
 const tk = require("timekeeper");
 const { DateTime } = require("luxon");
 
-const node = require("./schedule_item");
+const { Schedule } = require("./schedule_item");
 
 afterEach(() => tk.reset());
 
 // #scheduledRegistrationDates
 it("not repeating: returns a single registration date", () => {
   let item = buildSchedule({ date: '2022-06-15', registration_period: 3, repeat: "never" });
-  let registrationDates = node.scheduledRegistrationDates(item);
-  expect(registrationDates).toEqual(["2022-06-12"]);
+  let schedule = new Schedule(item.fields);
+  expect(schedule.registrationDates()).toEqual(["2022-06-12"]);
 });
 
 it("repeating daily: returns a list of dates on which registration opens", () => {
   // ending after n times
   let item = buildSchedule({ date: '2022-06-15', registration_period: 5, repeat: "daily", repeat_end: "after", repeat_end_after: 10 });
-  let registrationDates = node.scheduledRegistrationDates(item);
-  expect(registrationDates).toEqual([
+  let schedule = new Schedule(item.fields);
+  expect(schedule.registrationDates()).toEqual([
     "2022-06-10", "2022-06-11", "2022-06-12", "2022-06-13", "2022-06-14",
     "2022-06-15", "2022-06-16", "2022-06-17", "2022-06-18", "2022-06-19",
   ]);
 
   item = buildSchedule({ date: '2022-06-15', registration_period: 5, repeat: "daily", repeat_end: "after", repeat_end_after: 5 });
-  registrationDates = node.scheduledRegistrationDates(item);
-  expect(registrationDates).toEqual(["2022-06-10", "2022-06-11", "2022-06-12", "2022-06-13", "2022-06-14"]);
+  schedule = new Schedule(item.fields);
+  expect(schedule.registrationDates()).toEqual(["2022-06-10", "2022-06-11", "2022-06-12", "2022-06-13", "2022-06-14"]);
 
   // ending on a date
   item = buildSchedule({ date: '2022-06-15', registration_period: 5, repeat: "daily", repeat_end: "on_date", repeat_end_on_date: "2022-06-17", });
-  registrationDates = node.scheduledRegistrationDates(item);
-  expect(registrationDates).toEqual(["2022-06-10", "2022-06-11", "2022-06-12"]);
+  schedule = new Schedule(item.fields);
+  expect(schedule.registrationDates()).toEqual(["2022-06-10", "2022-06-11", "2022-06-12"]);
 
   // no defined ending
   let today = freezeDate('2022-06-20');
   item = buildSchedule({ date: '2022-06-15', registration_period: 5, repeat: "daily", repeat_end: "never", });
-  registrationDates = node.scheduledRegistrationDates(item, today);
-  expect(registrationDates.length).toEqual(16);
-  expect(registrationDates[0]).toEqual("2022-06-10");
-  expect(registrationDates[15]).toEqual("2022-06-25");
+  schedule = new Schedule(item.fields, today);
+  expect(schedule.registrationDates().length).toEqual(16);
+  expect(schedule.registrationDates()[0]).toEqual("2022-06-10");
+  expect(schedule.registrationDates()[15]).toEqual("2022-06-25");
 });
 
 it("repeating weekly: returns a list of dates on which registration opens", () => {
   let item = buildSchedule({ date: '2022-06-08', registration_period: 7, repeat: "weekly", repeat_end: "after", repeat_end_after: 3 });
-  let registrationDates = node.scheduledRegistrationDates(item);
-  expect(registrationDates).toEqual(["2022-06-01", "2022-06-08", "2022-06-15"]);
+  let schedule = new Schedule(item.fields);
+  expect(schedule.registrationDates()).toEqual(["2022-06-01", "2022-06-08", "2022-06-15"]);
 
   item = buildSchedule({ date: '2022-06-08', registration_period: 7, repeat: "weekly", repeat_end: "after", repeat_end_after: 1 });
-  registrationDates = node.scheduledRegistrationDates(item);
-  expect(registrationDates).toEqual(["2022-06-01"]);
+  schedule = new Schedule(item.fields);
+  expect(schedule.registrationDates()).toEqual(["2022-06-01"]);
 });
 
 it("repeating biweekly: returns a list of dates on which registration opens", () => {
   let item = buildSchedule({ date: '2022-06-08', registration_period: 7, repeat: "biweekly", repeat_end: "after", repeat_end_after: 3 });
-  let registrationDates = node.scheduledRegistrationDates(item);
-  expect(registrationDates).toEqual(["2022-06-01", "2022-06-15", "2022-06-29"]);
+  let schedule = new Schedule(item.fields);
+  expect(schedule.registrationDates()).toEqual(["2022-06-01", "2022-06-15", "2022-06-29"]);
 
   item = buildSchedule({ date: '2022-06-08', registration_period: 7, repeat: "biweekly", repeat_end: "after", repeat_end_after: 1 });
-  registrationDates = node.scheduledRegistrationDates(item);
-  expect(registrationDates).toEqual(["2022-06-01"]);
+  schedule = new Schedule(item.fields);
+  expect(schedule.registrationDates()).toEqual(["2022-06-01"]);
 });
 
 it("repeating monthly: returns a list of dates on which registration opens", () => {
   let item = buildSchedule({ date: '2022-06-08', registration_period: 7, repeat: "monthly", repeat_end: "after", repeat_end_after: 3 });
-  let registrationDates = node.scheduledRegistrationDates(item);
-  expect(registrationDates).toEqual(["2022-06-01", "2022-07-01", "2022-08-01"]);
+  let schedule = new Schedule(item.fields);
+  expect(schedule.registrationDates()).toEqual(["2022-06-01", "2022-07-01", "2022-08-01"]);
 
   item = buildSchedule({ date: '2022-06-08', registration_period: 7, repeat: "monthly", repeat_end: "after", repeat_end_after: 1 });
-  registrationDates = node.scheduledRegistrationDates(item);
-  expect(registrationDates).toEqual(["2022-06-01"]);
+  schedule = new Schedule(item.fields);
+  expect(schedule.registrationDates()).toEqual(["2022-06-01"]);
 });
 
 it("repeating monthly (nth weekday): returns a list of dates on which registration opens", () => {
@@ -75,8 +75,8 @@ it("repeating monthly (nth weekday): returns a list of dates on which registrati
     repeat: "monthly", repeat_monthly: "third wednesday",
     repeat_end: "after", repeat_end_after: 3,
   });
-  let registrationDates = node.scheduledRegistrationDates(item);
-  expect(registrationDates).toEqual(["2022-06-13", "2022-07-18", "2022-08-15"]);
+  let schedule = new Schedule(item.fields);
+  expect(schedule.registrationDates()).toEqual(["2022-06-13", "2022-07-18", "2022-08-15"]);
 });
 
 it("repeating monthly (nth day): returns a list of dates on which registration opens", () => {
@@ -85,8 +85,8 @@ it("repeating monthly (nth day): returns a list of dates on which registration o
     repeat: "monthly", repeat_monthly: "third day",
     repeat_end: "after", repeat_end_after: 3,
   });
-  let registrationDates = node.scheduledRegistrationDates(item);
-  expect(registrationDates).toEqual(["2022-06-13", "2022-07-01", "2022-08-01"]);
+  let schedule = new Schedule(item.fields);
+  expect(schedule.registrationDates()).toEqual(["2022-06-13", "2022-07-01", "2022-08-01"]);
 });
 
 it("repeating monthly (last weekday): returns a list of dates on which registration opens", () => {
@@ -95,8 +95,8 @@ it("repeating monthly (last weekday): returns a list of dates on which registrat
     repeat: "monthly", repeat_monthly: "last thursday",
     repeat_end: "after", repeat_end_after: 3,
   });
-  let registrationDates = node.scheduledRegistrationDates(item);
-  expect(registrationDates).toEqual(["2022-06-13", "2022-07-26", "2022-08-23"]);
+  let schedule = new Schedule(item.fields);
+  expect(schedule.registrationDates()).toEqual(["2022-06-13", "2022-07-26", "2022-08-23"]);
 });
 
 it("repeating monthly (last day): returns a list of dates on which registration opens", () => {
@@ -105,8 +105,8 @@ it("repeating monthly (last day): returns a list of dates on which registration 
     repeat: "monthly", repeat_monthly: "last day",
     repeat_end: "after", repeat_end_after: 3,
   });
-  let registrationDates = node.scheduledRegistrationDates(item);
-  expect(registrationDates).toEqual(["2022-06-13", "2022-07-29", "2022-08-29"]);
+  let schedule = new Schedule(item.fields);
+  expect(schedule.registrationDates()).toEqual(["2022-06-13", "2022-07-29", "2022-08-29"]);
 });
 
 const freezeDate = (dateString) => {
