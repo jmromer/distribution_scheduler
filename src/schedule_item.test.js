@@ -69,14 +69,45 @@ it("repeating monthly: returns a list of dates on which registration opens", () 
   expect(registrationDates).toEqual(["2022-06-01"]);
 });
 
-// it("repeating monthly (nth weekday): returns a list of dates on which registration opens", () => {
-//   let item = buildSchedule({ date: '2022-06-08', registration_period: 7, repeat: "monthly", repeat_end: "after", repeat_end_after: 3, monthly_repeat: "third wednesday" });
-//   let registrationDates = node.scheduledRegistrationDates(item);
-//   expect(registrationDates).toEqual(["2022-06-01", "2022-07-01", "2022-08-01"]);
-// });
+it("repeating monthly (nth weekday): returns a list of dates on which registration opens", () => {
+  let item = buildSchedule({
+    date: '2022-06-15', registration_period: 2,
+    repeat: "monthly", repeat_monthly: "third wednesday",
+    repeat_end: "after", repeat_end_after: 3,
+  });
+  let registrationDates = node.scheduledRegistrationDates(item);
+  expect(registrationDates).toEqual(["2022-06-13", "2022-07-18", "2022-08-15"]);
+});
 
-// it("repeating monthly (nth day): returns a list of dates on which registration opens", () => {
-// });
+it("repeating monthly (nth day): returns a list of dates on which registration opens", () => {
+  let item = buildSchedule({
+    date: '2022-06-15', registration_period: 2,
+    repeat: "monthly", repeat_monthly: "third day",
+    repeat_end: "after", repeat_end_after: 3,
+  });
+  let registrationDates = node.scheduledRegistrationDates(item);
+  expect(registrationDates).toEqual(["2022-06-13", "2022-07-01", "2022-08-01"]);
+});
+
+it("repeating monthly (last weekday): returns a list of dates on which registration opens", () => {
+  let item = buildSchedule({
+    date: '2022-06-15', registration_period: 2,
+    repeat: "monthly", repeat_monthly: "last thursday",
+    repeat_end: "after", repeat_end_after: 3,
+  });
+  let registrationDates = node.scheduledRegistrationDates(item);
+  expect(registrationDates).toEqual(["2022-06-13", "2022-07-26", "2022-08-23"]);
+});
+
+it("repeating monthly (last day): returns a list of dates on which registration opens", () => {
+  let item = buildSchedule({
+    date: '2022-06-15', registration_period: 2,
+    repeat: "monthly", repeat_monthly: "last day",
+    repeat_end: "after", repeat_end_after: 3,
+  });
+  let registrationDates = node.scheduledRegistrationDates(item);
+  expect(registrationDates).toEqual(["2022-06-13", "2022-07-29", "2022-08-29"]);
+});
 
 const freezeDate = (dateString) => {
   tk.freeze(dateString);
