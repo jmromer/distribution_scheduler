@@ -128,7 +128,7 @@ function run({ fields }) {
     }
   }
 
-  return {}
+  return {};
 }
 
 module.exports = { Schedule }
